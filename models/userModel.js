@@ -1,4 +1,4 @@
-const mongoose = require('mongoose'); 
+const {mongoose,ObjectId} = require('mongoose'); 
 const bcrypt = require("bcrypt");
 var userSchema = new mongoose.Schema({
     firstName:{
@@ -23,10 +23,24 @@ var userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    isBlocked:{
+        type:Boolean,
+        default:false
+    },
+    // isUnbloked:{
+    //     type:Boolean,
+    //     default:false
+    // },
     role:{
         type:String,
         default:"user"
-    }
+    },
+    cart:{
+        type:Array,
+        default:[],
+    },
+    address: [{ type: ObjectId, ref: 'Address' }],
+    wishlist: [{ type: ObjectId, ref: 'Product' }]
 },{ timestamps: true })
 
 userSchema.pre("save", async function (next) {

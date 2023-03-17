@@ -1,6 +1,8 @@
 const User  = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwt");
+// const isValidObjectId = require("./utils/isValidObjectId");
+
 
 const createUser = asyncHandler (async(req,res)=>{
     const email = req.body.email;
@@ -21,10 +23,11 @@ if(findUser && await findUser.ispasswordMethods(password)){
 // res.json(findUser)
 res.json({
     _id:findUser?._id,
-    firstName:findUser?.findUser,
+    firstName:findUser?.firstName,
     lastName:findUser?.lastName,
     email:findUser?.email,
     mobile:findUser?.mobile,
+    role:findUser?.role,
     token:generateToken(findUser?._id)
 });
 }else{
@@ -43,6 +46,7 @@ res.json({
 
  const getUser = asyncHandler(async(req,res) => {
     const {id} = req.params;
+    // isValidObjectId(id)
     try {
         const getUser = await User.findById(id);
         res.json({
@@ -52,8 +56,10 @@ res.json({
         throw new Error(error);
     }
  })
+
  const deletetUser = asyncHandler(async(req,res) => {
     const {id} = req.params;
+    // isValidObjectId(id)
     try {
         const deletetUser = await User.findByIdAndDelete(id);
         res.json({
@@ -65,7 +71,8 @@ res.json({
  })
 
  const updateUser = asyncHandler(async(req,res) => {
-    const {id} = req.params;
+    const {id} = req.user;
+    // isValidObjectId(_id);
     try {
         const updateUser = await User.findOneAndUpdate(id,{
             firstName:req.body.firstName,
@@ -81,11 +88,51 @@ res.json({
     }
  })
 
+ const blockUser = asyncHandler(async(req,res)=>{
+    const {id} = req.params
+    // isValidObjectId(id)
+    try {
+        const blockuser =  await User.findByIdAndUpdate(id,
+            {
+                isBlocked:true
+            },{
+                new:true
+            },
+            );
+            res.json(blockuser)
+    } catch (error) {
+        throw new Error(error)
+    }
+
+ })
+ const unblokUser = asyncHandler(async(req,res)=>{
+    const {id} = req.params
+    // isValidObjectId(id);
+    try {
+        const unlock =  await User.findByIdAndUpdate(id,
+            {
+                isBlocked:false
+            },{
+                new:true
+            },
+            );
+            res.json({
+                massage:"User is Unlocked"
+            })
+    } catch (error) {
+        throw new Error(error)
+    }
+
+ })
+
+ 
 module.exports = {
     createUser,
     login,
     getAllUser,
     getUser,
     deletetUser,
-    updateUser
+    updateUser,
+    blockUser,
+    unblokUser,
 }
