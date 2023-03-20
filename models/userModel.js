@@ -27,10 +27,6 @@ var userSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    // isUnbloked:{
-    //     type:Boolean,
-    //     default:false
-    // },
     role:{
         type:String,
         default:"user"
@@ -40,7 +36,10 @@ var userSchema = new mongoose.Schema({
         default:[],
     },
     address: [{ type: ObjectId, ref: 'Address' }],
-    wishlist: [{ type: ObjectId, ref: 'Product' }]
+    wishlist: [{ type: ObjectId, ref: 'Product' }],
+    refreshToken:{
+        type:String,
+    },
 },{ timestamps: true })
 
 userSchema.pre("save", async function (next) {
