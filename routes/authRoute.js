@@ -9,11 +9,13 @@ const {
   blockUser,
   unblokUser,
   handleRefreshToken,
+  logout,
 } = require("../controllers/userCtrl");
 const { authmiddleware, isAdmin } = require("../middleware/authmiddleware");
 const router = express.Router();
 router.post("/register", createUser);
 router.post("/login", login);
+router.get("/logout", logout);
 router.get("/getAllUser", getAllUser);
 router.get("/refresh", handleRefreshToken);
 router.get("/:id", authmiddleware, isAdmin, getUser);
