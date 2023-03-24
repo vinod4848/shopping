@@ -1,54 +1,75 @@
-const {mongoose,ObjectId} = require('mongoose'); 
+const { mongoose, ObjectId } = require("mongoose");
 const bcrypt = require("bcrypt");
-var userSchema = new mongoose.Schema({
-    firstName:{
-        type:String,
-        required:true,
+const crypto = require("crypto");
+var userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
     },
-    lastName:{
-        type:String,
-        required:true,
+    lastName: {
+      type: String,
+      required: true,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    mobile:{
-        type:String,
-        required:true,
-        unique:true,
+    mobile: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password:{
-        type:String,
-        required:true,
+    password: {
+      type: String,
+      required: true,
     },
-    isBlocked:{
-        type:Boolean,
-        default:false
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
-    role:{
-        type:String,
-        default:"user"
+    role: {
+      type: String,
+      default: "user",
     },
-    cart:{
-        type:Array,
-        default:[],
+    cart: {
+      type: Array,
+      default: [],
     },
-    address: [{ type: ObjectId, ref: 'Address' }],
-    wishlist: [{ type: ObjectId, ref: 'Product' }],
-    refreshToken:{
-        type:String,
+    address: [{ type: ObjectId, ref: "Address" }],
+    wishlist: [{ type: ObjectId, ref: "Product" }],
+    refreshToken: {
+      type: String,
     },
-},{ timestamps: true })
+    PasswordChangedAt: Date,
+    passwordRestToken: String,
+    resetpasswordExpire: String,
+  },
+  { timestamps: true }
+);
 
 userSchema.pre("save", async function (next) {
-    const salt = await bcrypt.genSaltSync(10);
-    this.password = await bcrypt.hash(this.password,salt);
+  if (!this.isModified("password")) {
+    next();
+  }
+  const salt = await bcrypt.genSaltSync(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 userSchema.methods.ispasswordMethods = async function (enterpassword) {
-    return await bcrypt.compare(enterpassword,this.password)
+  return await bcrypt.compare(enterpassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+userSchema.methods.createPasswordResetToken = async function () {
+  const resettoken = crypto.randomBytes(20).toString("hex");
+  this.passwordRestToken = crypto
+    .createHash("sha256")
+    .update(resettoken)
+    .digest("hex");
+  this.resetpasswordExpire = Date.now() + 30 * 60 * 1000; // Valid for 10 minutes
+  return resettoken;
+};
+
+module.exports = mongoose.model("User", userSchema);
