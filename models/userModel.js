@@ -1,4 +1,4 @@
-const { mongoose, ObjectId } = require("mongoose");
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 var userSchema = new mongoose.Schema(
@@ -37,8 +37,10 @@ var userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    address: [{ type: ObjectId, ref: "Address" }],
-    wishlist: [{ type: ObjectId, ref: "Product" }],
+    address: {
+      type: String
+    },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     refreshToken: {
       type: String,
     },

@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
+const Product = require("../models/productModel");
+const Cart = require("../models/cartModel");
 const { generateToken } = require("../helpers/jwt");
 const { generateRefreshToken } = require("../helpers/refreshToken");
 const {
@@ -62,7 +64,7 @@ const logout = asyncHandler(async (req, res) => {
     });
     return res.sendStatus(204);
   }
-  await User.findOneAndUpdate(refreshToken, {
+  await User.findByIdAndUpdate(refreshToken, {
     refreshToken: "",
   });
   res.clearCookie("refreshToken", {
@@ -125,7 +127,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   isValidObjectId(_id);
   try {
-    const updateUser = await User.findOneAndUpdate(_id, {
+    const updateUser = await User.findByIdAndUpdate(_id, {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       mobile: req.body.mobile,
@@ -224,6 +226,57 @@ const resetPassword = asyncHandler(async (req, res) => {
   await user.save();
   res.json(user);
 });
+const loginAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const findAdmin = await User.findOne({ email });
+  if (findAdmin.role !== 'admin') throw new Error("Not authorized")
+  if (findAdmin && (await findAdmin.ispasswordMethods(password))) {
+    const refreshToken = await generateRefreshToken(findAdmin?._id);
+    const updateAdmin = await User.findByIdAndUpdate(
+      findAdmin.id,
+      {
+        refreshToken: refreshToken,
+      },
+      { new: true }
+    );
+    res.cookie(`refreshToken`, refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.json({
+      _id: findAdmin?._id,
+      firstName: findAdmin?.firstName,
+      lastName: findAdmin?.lastName,
+      email: findAdmin?.email,
+      mobile: findAdmin?.mobile,
+      role: findAdmin?.role,
+      token: generateToken(findAdmin?._id),
+    });
+  } else {
+    throw new Error("Invalid Credentials");
+  }
+});
+const getWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user
+  try {
+    const findUser = await User.findById(_id).populate('wishlist')
+    res.json(findUser)
+  } catch (error) {
+    throw new Error(error)
+  }
+})
+const updateAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  isValidObjectId(_id);
+  try {
+    const updateAddress = await User.findByIdAndUpdate(_id, {
+      address: req.body.address,
+    });
+    res.json(updateAddress);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 module.exports = {
   createUser,
   login,
@@ -238,4 +291,8 @@ module.exports = {
   updatedPassword,
   forgotPassword,
   resetPassword,
+  loginAdmin,
+  getWishlist,
+  updateAddress,
+
 };

@@ -2,6 +2,8 @@ const Product = require("../models/productModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const User = require("../models/userModel");
+const fs = require("fs")
+const cloudinaryuplodeImg = require("../controllers/utils/cloudinary");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -17,12 +19,12 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 });
 const updateProduct = asyncHandler(async (req, res) => {
-  const id = req.params;
+  const id = req.params.id;
   try {
     if (req.body.title) {
       req.body.slug = slugify(req.body.title);
     }
-    const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+    const updateProduct = await Product.findByIdAndUpdate(id, req.body, {
       new: true,
     });
     res.json(updateProduct);
@@ -77,7 +79,6 @@ const getAllProduct = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-
 const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
@@ -89,7 +90,6 @@ const getProduct = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-
 const deletetProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
@@ -108,7 +108,7 @@ const addWishlist = asyncHandler(async (req, res) => {
     const user = await User.findById(_id);
     const alredyadded = user.wishlist.find((id) => id.toString() === prodId);
     if (alredyadded) {
-      let user = await User.findOneAndUpdate(
+      let user = await User.findByIdAndUpdate(
         _id,
         {
           $pull: { wishlist: prodId },
@@ -119,7 +119,7 @@ const addWishlist = asyncHandler(async (req, res) => {
       );
       res.json(user);
     } else {
-      let user = await User.findOneAndUpdate(
+      let user = await User.findByIdAndUpdate(
         _id,
         {
           $push: { wishlist: prodId },
@@ -136,7 +136,7 @@ const addWishlist = asyncHandler(async (req, res) => {
 });
 const rating = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const { star, prodId } = req.body;
+  const { star, prodId, comment } = req.body;
   try {
     const product = await Product.findById(prodId);
     let alredyRated = product.ratings.find((userId) => userId.postedby.toString() === _id.toString()
@@ -147,7 +147,7 @@ const rating = asyncHandler(async (req, res) => {
           ratings: { $elemMatch: alredyRated },
         },
         {
-          $set: { "ratings.$.star": star },
+          $set: { "ratings.$.star": star, "ratings.$.comment": comment },
         },
         {
           new: true
@@ -158,6 +158,7 @@ const rating = asyncHandler(async (req, res) => {
         $push: {
           ratings: {
             star: star,
+            comment: comment,
             postedby: _id
           }
         },
@@ -182,6 +183,32 @@ const rating = asyncHandler(async (req, res) => {
     throw new Error(error)
   }
 });
+const uploadimgs = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const uploader = (path) => cloudinaryuplodeImg(path, "images");
+    const urls = []
+    const files = req.files;
+    for (const file of files) {
+      const { path } = file
+      const newpath = await uploader(path);
+      urls.push(newpath)
+      fs.unlinkSync(path)
+    }
+    const findproduct = await Product.findByIdAndUpdate(id, {
+      images: urls.map(file => {
+        return file
+      }),
+    },
+      {
+        new: true
+      }
+    );
+    res.json(findproduct)
+  } catch (error) {
+    throw new Error(error)
+  }
+})
 module.exports = {
   createProduct,
   getAllProduct,
@@ -190,4 +217,5 @@ module.exports = {
   updateProduct,
   addWishlist,
   rating,
+  uploadimgs,
 };
