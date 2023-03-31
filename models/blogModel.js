@@ -28,15 +28,11 @@ var blogSchema = new mongoose.Schema(
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     disliked: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    images: {
-      type: String,
-      default:
-        "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fblog&psig=AOvVaw3rulFqGE7RcLrH2Stkw3Bd&ust=1679989034587000&source=images&cd=vfe&ved=0CA8QjRxqFwoTCLC_v_7M-_0CFQAAAAAdAAAAABAE",
-    },
     author: {
       type: String,
       default: "Admin",
     },
+    images:[],
   },
   {
     toJSON: {
