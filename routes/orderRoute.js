@@ -9,9 +9,9 @@ const {
 const { authmiddleware, isAdmin } = require("../middleware/authmiddleware");
 const router = express.Router();
 
-router.post("/createorder", authmiddleware, isAdmin, createorder);
+router.post("/createorder", createorder);
 router.get("/getAllorder", authmiddleware, isAdmin, getAllorder);
-router.get("/:id", authmiddleware, isAdmin, getorder);
+router.get("/:id", getorder);
 router.put("/:id", authmiddleware, isAdmin, updateorder);
 router.delete("/:id", authmiddleware, isAdmin, deleteorder);
 
