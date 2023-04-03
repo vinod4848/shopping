@@ -31,7 +31,7 @@ const getAllcoupon = asyncHandler(async (req, res) => {
 const getcoupon = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
-        const getcoupon = await Coupon.findById(id);
+        const getcoupon = await Coupon.findById(id).populate('productId');
         res.json({
             getcoupon,
         });
