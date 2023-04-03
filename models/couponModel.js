@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 var couponSchema = new mongoose.Schema(
     {
-        name: {
+        couponName: {
             type: String,
             required: true,
             unique: true,
@@ -14,6 +14,11 @@ var couponSchema = new mongoose.Schema(
         },
         discount: {
             type: Number,
+            required: true,
+        },
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
             required: true,
         },
     },
