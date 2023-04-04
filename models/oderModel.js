@@ -14,9 +14,10 @@ var orderSchema = new mongoose.Schema(
         paymentintent: {},
         orderStatus: {
             type: String,
+            enum : ["Not Processed", "Cash on Deliver", " Processing", "Cancelled", "Dispatched", "Delivered"],
             default: "Not Processed",
-            enum: ["Not Processed", "Cash on Delivery", " Processing", "Cancelled", "Dispatched", "Delivered"],
         },
+
         orderby: {
             type: mongoose.Schema.Types.ObjectId, ref: "User"
         },

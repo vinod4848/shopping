@@ -17,7 +17,7 @@ router.post("/addProduct", authmiddleware, isAdmin, createProduct);
 router.get("/getAllProduct", getAllProduct);
 router.get("/:id", getProduct);
 router.put("/wishlist", authmiddleware, addWishlist);
-router.put("/upload/:id", authmiddleware, isAdmin, uploadphoto.array('images', 10), productimgResize,uploadimgs);
+router.put("/upload", authmiddleware, isAdmin, uploadphoto.array('images', 10), productimgResize,uploadimgs);
 router.put("/rating", authmiddleware, rating);
 router.put("/:id", authmiddleware, isAdmin, updateProduct);
 router.delete("/:id", authmiddleware, isAdmin, deletetProduct);
