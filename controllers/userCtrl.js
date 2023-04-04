@@ -2,7 +2,8 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
-const Coupon = require("../models/couponModel")
+const Coupon = require("../models/couponModel");
+const Order = require("../models/oderModel");
 const { generateToken } = require("../helpers/jwt");
 const { generateRefreshToken } = require("../helpers/refreshToken");
 const {
@@ -12,6 +13,7 @@ const {
 const jwt = require("jsonwebtoken");
 const { sendmail } = require("../helpers/sendmail");
 const crypto = require("crypto");
+const uniqid = require('uniqid');
 
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -353,6 +355,75 @@ const applyCoupon = asyncHandler(async (req, res) => {
   );
   res.json(totalAfterDiscount)
 })
+const creatOrder = asyncHandler(async (req, res) => {
+  const { COD, couponApplied } = req.body;
+  const { _id } = req.user;
+  try {
+    if (!COD) throw new Error("Create Cash on Deliver failed");
+    const user = await User.findById(_id);
+    let usercart = await Cart.findOne({ orderby: user._id });
+    let finalAmount = 0
+    if (couponApplied && usercart.totalAfterDiscount) {
+      finalAmount = usercart.totalAfterDiscount;
+    } else {
+      finalAmount = usercart.cartTotal;
+    }
+    let neworder = await Order({
+      products: usercart.products,
+      paymentintent: {
+        id: uniqid(),
+        method: "COD",
+        amount: finalAmount,
+        status: "Cash on Deliver",
+        created: Date.now(),
+        currency: "USD"
+      },
+      orderby: user._id,
+      orderStatus: "Cash on Deliver"
+    }).save();
+    let update = usercart.products.map((item) => {
+      return {
+        updateOne: {
+          filter: { id: item.product._id },
+          update: { $inc: { quantity: - item.count, sold: + item.count } },
+        }
+      }
+    })
+    const updated = await Product.bulkWrite(update, {})
+    res.json({ massage: "success" })
+  } catch (error) {
+    throw new Error(error)
+  }
+})
+const getOrder = asyncHandler(async (req, res) => {
+  const { _id } = req.user
+  try {
+    const getOrder = await Order.find({ orderby: _id }).populate('products.product').exec();
+    res.json(getOrder)
+  } catch (error) {
+    throw new Error(error)
+  }
+})
+const updateorderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body
+  try {
+    const updateStatus = await Order.findByIdAndUpdate(
+      id,
+      {
+        orderStatus: status,
+        paymentintent: {
+          status: status,
+        }
+      },
+      { new: true },
+
+    );
+    res.json(updateStatus)
+  } catch (error) {
+
+  }
+})
 module.exports = {
   createUser,
   login,
@@ -374,4 +445,8 @@ module.exports = {
   getUserCart,
   emptyCart,
   applyCoupon,
+  creatOrder,
+  getOrder,
+  updateorderStatus
+
 };
