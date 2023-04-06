@@ -2,8 +2,11 @@ const Product = require("../models/productModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const User = require("../models/userModel");
-const fs = require("fs")
-const cloudinaryuplodeImg = require("../controllers/utils/cloudinary");
+const fs = require("fs");
+const {
+  cloudinaryuplodeImg,
+  cloudinaryuplodeDeleteimg,
+} = require("../controllers/utils/cloudinary");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -32,7 +35,6 @@ const updateProduct = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-
 const getAllProduct = asyncHandler(async (req, res) => {
   try {
     //Filterings
@@ -71,7 +73,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
       const productCount = await Product.countDocuments();
       if (skip >= productCount) throw new Error("This page doesn't exist");
     }
-    console.log(page, limit, skip);
+    // console.log(page, limit, skip);
 
     const product = await query;
     res.json(product);
@@ -139,7 +141,8 @@ const rating = asyncHandler(async (req, res) => {
   const { star, prodId, comment } = req.body;
   try {
     const product = await Product.findById(prodId);
-    let alredyRated = product.ratings.find((userId) => userId.postedby.toString() === _id.toString()
+    let alredyRated = product.ratings.find(
+      (userId) => userId.postedby.toString() === _id.toString()
     );
     if (alredyRated) {
       const updateReting = await Product.updateOne(
@@ -150,21 +153,23 @@ const rating = asyncHandler(async (req, res) => {
           $set: { "ratings.$.star": star, "ratings.$.comment": comment },
         },
         {
-          new: true
+          new: true,
         }
       );
     } else {
-      const reteProduct = await Product.findByIdAndUpdate(prodId, {
-        $push: {
-          ratings: {
-            star: star,
-            comment: comment,
-            postedby: _id
-          }
-        },
-      },
+      const reteProduct = await Product.findByIdAndUpdate(
+        prodId,
         {
-          new: true
+          $push: {
+            ratings: {
+              star: star,
+              comment: comment,
+              postedby: _id,
+            },
+          },
+        },
+        {
+          new: true,
         }
       );
     }
@@ -172,45 +177,50 @@ const rating = asyncHandler(async (req, res) => {
     let totalRating = getAllretings.ratings.length;
     let countRating = getAllretings.ratings
       .map((item) => item.star)
-      .reduce((prev, curr) => prev + curr, 0)
-    let actualRating = Math.round(countRating / totalRating)
-    let finelProduct = await Product.findByIdAndUpdate(prodId, {
-      totalRating: actualRating,
-    }, { new: true }
+      .reduce((prev, curr) => prev + curr, 0);
+    let actualRating = Math.round(countRating / totalRating);
+    let finelProduct = await Product.findByIdAndUpdate(
+      prodId,
+      {
+        totalRating: actualRating,
+      },
+      { new: true }
     );
-    res.json(finelProduct)
+    res.json(finelProduct);
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error);
   }
 });
 const uploadimgs = asyncHandler(async (req, res) => {
   try {
     const uploader = (path) => cloudinaryuplodeImg(path, "images");
-    const urls = []
+    const urls = [];
     const files = req.files;
     for (const file of files) {
-      const { path } = file
+      const { path } = file;
       const newpath = await uploader(path);
-      urls.push(newpath)
-      fs.unlinkSync(path)
+      urls.push(newpath);
+      console.log(newpath);
+      fs.unlinkSync(path);
     }
-    const images = urls.map(file => {
-      return file
-    })
+    const images = urls.map((file) => {
+      return file;
+    });
     res.json(images);
-    // const findproduct = await Product.findByIdAndUpdate(id, {
-    //   images: urls.map(file => {
-    //     return file
-    //   }),
-    // },
-    //   {
-    //     new: true
-    //   }
-    // );
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error);
   }
-})
+});
+const deleteimgs = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleted = cloudinaryuplodeDeleteimg(id, "images");
+    res.json({ massage: "Deleted" });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createProduct,
   getAllProduct,
@@ -220,4 +230,5 @@ module.exports = {
   addWishlist,
   rating,
   uploadimgs,
+  deleteimgs,
 };
