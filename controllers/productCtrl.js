@@ -48,7 +48,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
     );
 
     //Sortings
-    let query = Product.find(JSON.parse(queryStar));
+    let query = Product.find(JSON.parse(queryStar)).populate("createdBy");
     if (req.query.sort) {
       const sortBy = req.query.sort.split(",").join(" ");
       query = query.sort(sortBy);
@@ -84,7 +84,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
 const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
-    const getProduct = await Product.findById(id);
+    const getProduct = await Product.findById(id).populate("createdBy");
     res.json({
       getProduct,
     });

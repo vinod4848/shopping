@@ -10,10 +10,15 @@ const {
   uploadimgs,
   deleteimgs,
 } = require("../controllers/productCtrl");
-const { authmiddleware, isAdmin } = require("../middleware/authmiddleware");
+const {
+  authmiddleware,
+  isAdmin,
+  ismerchant,
+} = require("../middleware/authmiddleware");
 const { uploadphoto, productimgResize } = require("../middleware/uploadimg");
 const router = express.Router();
 router.post("/addProduct", authmiddleware, isAdmin, createProduct);
+router.post("/merchant", authmiddleware, ismerchant, createProduct);
 router.get("/getAllProduct", getAllProduct);
 router.get("/:id", getProduct);
 router.put("/wishlist", authmiddleware, addWishlist);
