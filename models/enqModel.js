@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-var enqSchema = new mongoose.Schema(
+const enqSchema = new mongoose.Schema(
   {
     name: {
       type: String,
