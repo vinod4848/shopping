@@ -15,10 +15,11 @@ const orderRouter = require("./routes/orderRoute");
 const enqRouter = require("./routes/enqRoute");
 const { errorHandler } = require("./middleware/errorhandler");
 const cookieParser = require("cookie-parser");
+const cors = require('cors')
 const morgan = require("morgan");
 const PORT = process.env.PORT || 4000;
 dbConnect();
-
+app.use(cors())
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 app.use(cookieParser());
@@ -35,9 +36,7 @@ app.use("/api/order", orderRouter);
 app.use("/api/color", colorRouter);
 app.use("/api/enq", enqRouter);
 
-// app.use(notfound);
 app.use(errorHandler);
-
 app.listen(PORT, () => {
   console.log("Server listening on PORT " + PORT);
 });
