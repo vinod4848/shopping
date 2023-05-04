@@ -9,7 +9,6 @@ const productSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
       lowercase: true,
     },
     description: {
@@ -36,9 +35,14 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    images: [],
+    images: [
+      {
+        public_id: String,
+        url: String,
+      },
+    ],
     color: [],
-    tags: [],
+    tags: String, 
     totalRating: {
       type: String,
       default: 0,

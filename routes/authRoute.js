@@ -24,13 +24,15 @@ const {
   getOrder,
   updateorderStatus,
   loginmerchant,
+  getAllOrder,
 } = require("../controllers/userCtrl");
 const { authmiddleware, isAdmin } = require("../middleware/authmiddleware");
 const router = express.Router();
 router.post("/register", createUser);
 router.delete("/empty-cart", authmiddleware, emptyCart);
 router.get("/Getcart", authmiddleware, getUserCart);
-router.get("/GetOrder", authmiddleware, getOrder);
+router.get("/getOrder", authmiddleware, getOrder);
+router.get("/getAllOrder", authmiddleware, isAdmin, getAllOrder);
 router.post("/user-login", login);
 router.post("/admin-login", loginAdmin);
 router.post("/merchant-Login", loginmerchant);

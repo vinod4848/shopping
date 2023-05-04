@@ -13,6 +13,7 @@ const colorRouter = require("./routes/colorRoute");
 const couponRouter = require("./routes/couponRoute");
 const orderRouter = require("./routes/orderRoute");
 const enqRouter = require("./routes/enqRoute");
+const uploadRouter = require("./routes/uploadRoute")
 const { errorHandler } = require("./middleware/errorhandler");
 const cookieParser = require("cookie-parser");
 const cors = require('cors')
@@ -35,6 +36,7 @@ app.use("/api/coupon", couponRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/color", colorRouter);
 app.use("/api/enq", enqRouter);
+app.use("/api/upload", uploadRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => {

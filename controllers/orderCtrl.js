@@ -22,7 +22,7 @@ const updateorder = asyncHandler(async (req, res) => {
 });
 const getAllorder = asyncHandler(async (req, res) => {
     try {
-        const getAllorder = await Order.find();
+        const getAllorder = await Order.find()
         res.json(getAllorder);
     } catch (error) {
         throw new Error(error);
