@@ -49,7 +49,8 @@ const getBlog = asyncHandler(async (req, res) => {
 });
 const getAllBlog = asyncHandler(async (req, res) => {
   try {
-    const getAllBlog = await Blog.find();
+    const getAllBlog = await Blog.find().populate("likes")
+      .populate("disliked");;
     res.json(getAllBlog);
   } catch (error) {
     throw new Error(error);

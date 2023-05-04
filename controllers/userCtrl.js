@@ -429,10 +429,22 @@ const creatOrder = asyncHandler(async (req, res) => {
 const getOrder = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   try {
-    const getOrder = await Order.find({ orderby: _id })
+    const getOrder = await Order.findOne({ orderby: _id })
       .populate("products.product")
+      .populate("orderby")
       .exec();
     res.json(getOrder);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+const getAllOrder = asyncHandler(async (req, res) => {
+  try {
+    const getAllUsersOrder = await Order.find()
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    res.json(getAllUsersOrder);
   } catch (error) {
     throw new Error(error);
   }
@@ -452,7 +464,7 @@ const updateorderStatus = asyncHandler(async (req, res) => {
       { new: true }
     );
     res.json(updateStatus);
-  } catch (error) {}
+  } catch (error) { }
 });
 module.exports = {
   createUser,
@@ -479,4 +491,5 @@ module.exports = {
   getOrder,
   updateorderStatus,
   loginmerchant,
+  getAllOrder,
 };
