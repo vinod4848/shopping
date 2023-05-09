@@ -18,7 +18,7 @@ const { errorHandler } = require("./middleware/errorhandler");
 const cookieParser = require("cookie-parser");
 const cors = require('cors')
 const morgan = require("morgan");
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 dbConnect();
 app.use(cors())
 app.use(bodyparser.urlencoded({ extended: false }));
