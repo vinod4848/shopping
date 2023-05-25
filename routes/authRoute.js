@@ -20,11 +20,12 @@ const {
   getUserCart,
   emptyCart,
   applyCoupon,
-  creatOrder,
+  createOrder,
   getOrder,
   updateorderStatus,
   loginmerchant,
   getAllOrder,
+  getOrderByUserId,
 } = require("../controllers/userCtrl");
 const { authmiddleware, isAdmin } = require("../middleware/authmiddleware");
 const router = express.Router();
@@ -33,11 +34,12 @@ router.delete("/empty-cart", authmiddleware, emptyCart);
 router.get("/Getcart", authmiddleware, getUserCart);
 router.get("/getOrder", authmiddleware, getOrder);
 router.get("/getAllOrder", authmiddleware, isAdmin, getAllOrder);
+router.get("/getorderbyuser/:id", authmiddleware, isAdmin, getOrderByUserId);
 router.post("/user-login", login);
 router.post("/admin-login", loginAdmin);
 router.post("/merchant-Login", loginmerchant);
 router.post("/cart/applyCoupon", authmiddleware, applyCoupon);
-router.post("/cart/cash-Order", authmiddleware, creatOrder);
+router.post("/cart/cash-order", authmiddleware, createOrder);
 router.get("/logout", logout);
 router.get("/getAllUser", getAllUser);
 router.get("/refresh", handleRefreshToken);

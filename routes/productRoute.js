@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/addProduct", createProduct);
 router.post("/merchant", authmiddleware, ismerchant, createProduct);
 router.get("/getAllProduct", getAllProduct);
-router.get("/:id", getProduct);
+router.get("/:id", authmiddleware, isAdmin, getProduct);
 router.put("/wishlist", authmiddleware, addWishlist);
 router.put("/rating", authmiddleware, rating);
 router.put("/:id", authmiddleware, isAdmin, updateProduct);

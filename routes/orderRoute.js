@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/createorder", createorder);
 router.get("/getAllorder", authmiddleware, isAdmin, getAllorder);
-router.get("/:id", getorder);
+router.get("/:id",authmiddleware, isAdmin, getorder);
 router.put("/:id", authmiddleware, isAdmin, updateorder);
 router.delete("/:id", authmiddleware, isAdmin, deleteorder);
 

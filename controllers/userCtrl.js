@@ -386,7 +386,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
   );
   res.json(totalAfterDiscount);
 });
-const creatOrder = asyncHandler(async (req, res) => {
+const createOrder = asyncHandler(async (req, res) => {
   const { COD, couponApplied } = req.body;
   const { _id } = req.user;
   try {
@@ -449,6 +449,18 @@ const getAllOrder = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+const getOrderByUserId = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userorders = await Order.findOne({ orderby: id })
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    res.json(userorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 const updateorderStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -464,7 +476,7 @@ const updateorderStatus = asyncHandler(async (req, res) => {
       { new: true }
     );
     res.json(updateStatus);
-  } catch (error) { }
+  } catch (error) {}
 });
 module.exports = {
   createUser,
@@ -487,9 +499,10 @@ module.exports = {
   getUserCart,
   emptyCart,
   applyCoupon,
-  creatOrder,
+  createOrder,
   getOrder,
   updateorderStatus,
   loginmerchant,
   getAllOrder,
+  getOrderByUserId,
 };
